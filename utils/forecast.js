@@ -11,21 +11,25 @@ const request = require('request');
 //    - Success, pass forecast string for data (same format as from before)
 
 // const url = 'http://api.weatherstack.com/current?access_key=806f2b1e855f12d49ab2aef60eaf2a2a&query=&units=f';
-const forecast = (latitude, longitude,units,  callback) => {
+const forecast = (latitude, longitude, units,  callback) => {
     const forecastUrl = 'http://api.weatherstack.com/current?access_key=806f2b1e855f12d49ab2aef60eaf2a2a&query='+latitude+','+longitude+'&units='+units;
-    request({url: forecastUrl , json: true}, (error, response) => {
+    request({url: forecastUrl , json: true}, (error, {body}) => { // destructuring response to body
         if (error) {
             callback('Unable to connect to Weather Service!');
-        } else if(response.body.error) {
-            callback(response.body.error.code+ ' Unable to find Location.');
+        } else if(body.error) {
+            callback(body.error.code+ ' Unable to find Location.');
         } else {
-            const locationObj = response.body.location;
-            const currentObj = response.body.current;
+            const locationObj = body.location;
+            const currentObj = body.current;
+            var location= locationObj.name,
+            weather = currentObj.weather_descriptions[0],
+            currentTemp = currentObj.temperature,
+            feelsLike = currentObj.feelslike,
             data = {
-                location: locationObj.name,
-                weather: currentObj.weather_descriptions[0],
-                currentTemp: currentObj.temperature,
-                feelsLike: currentObj.feelslike
+                location,
+                weather,
+                currentTemp,
+                feelsLike
             }
 
             callback(undefined,data);
